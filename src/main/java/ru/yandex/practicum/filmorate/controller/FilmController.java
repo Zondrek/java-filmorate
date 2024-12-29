@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -53,12 +55,12 @@ public class FilmController {
     }
 
     private Film update(Film originalFilm, Film newFilm) {
-        Film.FilmBuilder builder = Film.builder();
-        builder.id(newFilm.getId());
-        builder.name(newFilm.getName() == null ? originalFilm.getName() : newFilm.getName());
-        builder.description(newFilm.getDescription() == null ? originalFilm.getDescription() : newFilm.getDescription());
-        builder.duration(newFilm.getDuration() == null ? originalFilm.getDuration() : newFilm.getDuration());
-        builder.releaseDate(newFilm.getReleaseDate() == null ? originalFilm.getReleaseDate() : newFilm.getReleaseDate());
-        return builder.build();
+        return Film.builder()
+                .id(newFilm.getId())
+                .name(newFilm.getName() == null ? originalFilm.getName() : newFilm.getName())
+                .description(newFilm.getDescription() == null ? originalFilm.getDescription() : newFilm.getDescription())
+                .duration(newFilm.getDuration() == null ? originalFilm.getDuration() : newFilm.getDuration())
+                .releaseDate(newFilm.getReleaseDate() == null ? originalFilm.getReleaseDate() : newFilm.getReleaseDate())
+                .build();
     }
 }

@@ -63,12 +63,12 @@ public class UserController {
 
     private User update(User originalUser, User newUser) {
         updateName(newUser);
-        User.UserBuilder builder = User.builder();
-        builder.id(newUser.getId());
-        builder.name(newUser.getName() == null ? originalUser.getName() : newUser.getName());
-        builder.login(newUser.getLogin() == null ? originalUser.getLogin() : newUser.getLogin());
-        builder.email(newUser.getEmail() == null ? originalUser.getEmail() : newUser.getEmail());
-        builder.birthday(newUser.getBirthday() == null ? originalUser.getBirthday() : newUser.getBirthday());
-        return builder.build();
+        return User.builder()
+                .id(newUser.getId())
+                .name(newUser.getName() == null ? originalUser.getName() : newUser.getName())
+                .login(newUser.getLogin() == null ? originalUser.getLogin() : newUser.getLogin())
+                .email(newUser.getEmail() == null ? originalUser.getEmail() : newUser.getEmail())
+                .birthday(newUser.getBirthday() == null ? originalUser.getBirthday() : newUser.getBirthday())
+                .build();
     }
 }

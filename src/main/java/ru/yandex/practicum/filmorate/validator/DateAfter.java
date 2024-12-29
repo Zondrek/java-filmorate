@@ -21,5 +21,5 @@ public @interface DateAfter {
     /**
      * Паттерн: ISO_DATE yyyy-MM-dd
      */
-    String date();
+    String value();
 }

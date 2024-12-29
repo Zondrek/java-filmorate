@@ -22,7 +22,7 @@ public class Film {
     @Size(max = 200)
     private String description;
 
-    @DateAfter(date = "1895-12-28")
+    @DateAfter(value = "1895-12-28")
     private LocalDate releaseDate;
 
     @Positive

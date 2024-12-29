@@ -13,7 +13,7 @@ public class DateAfterValidator implements ConstraintValidator<DateAfter, LocalD
     @Override
     public void initialize(DateAfter constraintAnnotation) {
         date = LocalDate.parse(
-                constraintAnnotation.date(),
+                constraintAnnotation.value(),
                 DateTimeFormatter.ISO_DATE
         );
     }
