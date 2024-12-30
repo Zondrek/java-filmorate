@@ -45,9 +45,9 @@ public class ErrorHandlingControllerAdvice {
         return new ValidationErrorResponse(violations);
     }
 
+    @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
     public ValidationErrorResponse onMethodArgumentNotValidException(
             MethodArgumentNotValidException e
     ) {
