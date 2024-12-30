@@ -2,15 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -18,23 +21,22 @@ public class FilmController {
     private final Map<Long, Film> cache = new HashMap<>();
 
     @PostMapping
+    @Validated(ValidationGroup.OnCreate.class)
     public Film addFilm(@Valid @RequestBody Film film) {
-        Long id = film.getId();
-        if (id == null) {
-            id = createId();
-        } else if (cache.containsKey(id)) {
-            throw new ValidationException("Фильм с таким идентификатором уже существует");
-        }
+        log.info("POST /films {}", film);
+        Long id = createId();
         film.setId(id);
         cache.put(id, film);
         return film;
     }
 
     @PutMapping
+    @Validated(ValidationGroup.OnUpdate.class)
     public Film updateFilm(@Valid @RequestBody Film film) {
+        log.info("PUT /films {}", film);
         Long id = film.getId();
         if (id == null || !cache.containsKey(id)) {
-            throw new ValidationException("Фильма с таким идентификатором не существует");
+            throw new NotFoundException("Фильма с таким идентификатором не существует");
         }
         Film result = update(cache.get(id), film);
         cache.put(result.getId(), result);
@@ -43,6 +45,7 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getFilms() {
+        log.info("GET /films, films count: {}", cache.size());
         return cache.values();
     }
 

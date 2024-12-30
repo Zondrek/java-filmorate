@@ -87,13 +87,13 @@ class UserControllerTest {
     @Test
     void createUserNullName() throws Exception {
         user.setName(null);
-        testRotateName(user, HttpMethod.POST);
+        testRotateName(user);
     }
 
     @Test
     void createUserEmptyName() throws Exception {
         user.setName("");
-        testRotateName(user, HttpMethod.POST);
+        testRotateName(user);
     }
 
     @Test
@@ -145,35 +145,11 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUserNullLogin() throws Exception {
-        testPostData(user);
-        user.setId(1L);
-        user.setLogin(null);
-        testPutInvalidData(user);
-    }
-
-    @Test
     void updateUserLoginWith_() throws Exception {
         testPostData(user);
         user.setId(1L);
         user.setLogin("log in");
         testPutInvalidData(user);
-    }
-
-    @Test
-    void updateUserNullName() throws Exception {
-        testPostData(user);
-        user.setId(1L);
-        user.setName(null);
-        testRotateName(user, HttpMethod.PUT);
-    }
-
-    @Test
-    void updateUserEmptyName() throws Exception {
-        testPostData(user);
-        user.setId(1L);
-        user.setName("");
-        testRotateName(user, HttpMethod.PUT);
     }
 
     @Test
@@ -212,9 +188,9 @@ class UserControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
-    private void testRotateName(User user, HttpMethod method) throws Exception {
+    private void testRotateName(User user) throws Exception {
         String json = objectMapper.writeValueAsString(user);
-        mockMvc.perform(request(method, USERS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post(USERS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is(user.getLogin())))

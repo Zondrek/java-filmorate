@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.validator.DateAfter;
+import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
+import ru.yandex.practicum.filmorate.validation.validator.DateAfter;
 
 import java.time.LocalDate;
 
@@ -13,10 +12,12 @@ import java.time.LocalDate;
 @Builder
 public class Film {
 
+    @Null(groups = ValidationGroup.OnCreate.class)
+    @NotNull(groups = ValidationGroup.OnUpdate.class)
     @Positive
     private Long id;
 
-    @NotBlank
+    @NotBlank(groups = ValidationGroup.OnCreate.class)
     private String name;
 
     @Size(max = 200)

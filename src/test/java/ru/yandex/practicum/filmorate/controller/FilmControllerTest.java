@@ -97,14 +97,6 @@ class FilmControllerTest {
     }
 
     @Test
-    void updateFilmEmptyName() throws Exception {
-        testPostData(film);
-        film.setId(1L);
-        film.setName("");
-        testPutInvalidData(film);
-    }
-
-    @Test
     void updateFilmDescriptionMoreThan200() throws Exception {
         testPostData(film);
         film.setId(1L);

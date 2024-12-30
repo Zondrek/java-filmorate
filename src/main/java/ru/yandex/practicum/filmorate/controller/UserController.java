@@ -2,15 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -18,13 +21,10 @@ public class UserController {
     private final Map<Long, User> cache = new HashMap<>();
 
     @PostMapping
+    @Validated(ValidationGroup.OnCreate.class)
     public User createUser(@Valid @RequestBody User user) {
-        Long id = user.getId();
-        if (user.getId() == null) {
-            id = createId();
-        } else if (cache.containsKey(id)) {
-            throw new ValidationException("Пользователь с таким идентификатором уже существует");
-        }
+        log.info("POST /users {}", user);
+        Long id = createId();
         user.setId(id);
         updateName(user);
         cache.put(id, user);
@@ -32,10 +32,12 @@ public class UserController {
     }
 
     @PutMapping
+    @Validated(ValidationGroup.OnUpdate.class)
     public User updateUser(@Valid @RequestBody User user) {
+        log.info("PUT /users {}", user);
         Long id = user.getId();
         if (id == null || !cache.containsKey(id)) {
-            throw new ValidationException("Пользователя с таким идентификатором не существует");
+            throw new NotFoundException("Пользователя с таким идентификатором не существует");
         }
         User result = update(cache.get(id), user);
         cache.put(result.getId(), result);
@@ -44,6 +46,7 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getUsers() {
+        log.info("GET /users, users count: {}", cache.size());
         return cache.values();
     }
 
@@ -62,7 +65,6 @@ public class UserController {
     }
 
     private User update(User originalUser, User newUser) {
-        updateName(newUser);
         return User.builder()
                 .id(newUser.getId())
                 .name(newUser.getName() == null ? originalUser.getName() : newUser.getName())
