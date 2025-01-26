@@ -1,76 +1,60 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
-@Slf4j
 @Validated
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final Map<Long, User> cache = new HashMap<>();
+    private final UserService service;
+
+    public UserController(UserService service) {
+        this.service = service;
+    }
 
     @PostMapping
     @Validated(ValidationGroup.OnCreate.class)
     public User createUser(@Valid @RequestBody User user) {
-        log.info("POST /users {}", user);
-        Long id = createId();
-        user.setId(id);
-        updateName(user);
-        cache.put(id, user);
-        return user;
+        return service.createUser(user);
     }
 
     @PutMapping
     @Validated(ValidationGroup.OnUpdate.class)
     public User updateUser(@Valid @RequestBody User user) {
-        log.info("PUT /users {}", user);
-        Long id = user.getId();
-        if (id == null || !cache.containsKey(id)) {
-            throw new NotFoundException("Пользователя с таким идентификатором не существует");
-        }
-        User result = update(cache.get(id), user);
-        cache.put(result.getId(), result);
-        return result;
+        return service.updateUser(user);
     }
 
     @GetMapping
     public Collection<User> getUsers() {
-        log.info("GET /users, users count: {}", cache.size());
-        return cache.values();
+        return service.getUsers();
     }
 
-    private long createId() {
-        long currentMaxId = cache.keySet()
-                .stream()
-                .max(Long::compareTo)
-                .orElse(0L);
-        return ++currentMaxId;
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        service.addFriend(id, friendId);
     }
 
-    private void updateName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        service.removeFriend(id, friendId);
     }
 
-    private User update(User originalUser, User newUser) {
-        return User.builder()
-                .id(newUser.getId())
-                .name(newUser.getName() == null ? originalUser.getName() : newUser.getName())
-                .login(newUser.getLogin() == null ? originalUser.getLogin() : newUser.getLogin())
-                .email(newUser.getEmail() == null ? originalUser.getEmail() : newUser.getEmail())
-                .birthday(newUser.getBirthday() == null ? originalUser.getBirthday() : newUser.getBirthday())
-                .build();
+    @GetMapping("/{id}/friends")
+    public Set<User> getFriends(@PathVariable Long id) {
+        return service.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Set<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return service.getCommonFriends(id, otherId);
     }
 }
