@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static ru.yandex.practicum.filmorate.service.Utils.checkContainsUsers;
+
 @Service
 public class UserService {
 
@@ -41,22 +43,22 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
-        checkContainsUsers(userId, friendId);
+        checkContainsUsers(storage, userId, friendId);
         storage.addFriend(userId, friendId);
     }
 
     public void removeFriend(long userId, long friendId) {
-        checkContainsUsers(userId, friendId);
+        checkContainsUsers(storage, userId, friendId);
         storage.removeFriend(userId, friendId);
     }
 
     public Set<User> getFriends(long userId) {
-        checkContainsUsers(userId);
+        checkContainsUsers(storage, userId);
         return storage.getFriends(userId);
     }
 
     public Set<User> getCommonFriends(long id, long otherId) {
-        checkContainsUsers(id, otherId);
+        checkContainsUsers(storage, id, otherId);
         Set<User> firstFriends = storage.getFriends(id);
         Set<User> secondFriends = storage.getFriends(otherId);
         Set<User> result = new HashSet<>();
@@ -66,14 +68,6 @@ public class UserService {
             }
         }
         return result;
-    }
-
-    private void checkContainsUsers(long... userIds) {
-        for (long id : userIds) {
-            if (!storage.contains(id)) {
-                throw new NotFoundException("Пользователя с таким идентификатором не существует");
-            }
-        }
     }
 
     private long createId() {

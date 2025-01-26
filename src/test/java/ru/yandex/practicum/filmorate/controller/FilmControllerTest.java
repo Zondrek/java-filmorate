@@ -5,11 +5,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
@@ -32,6 +39,29 @@ class FilmControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        public FilmStorage filmStorage() {
+            return new InMemoryFilmStorage();
+        }
+
+        @Bean
+        public UserStorage userStorage() {
+            return new InMemoryUserStorage();
+        }
+
+
+        @Bean
+        public FilmService filmService(
+                FilmStorage filmStorage,
+                UserStorage userStorage
+        ) {
+            return new FilmService(filmStorage, userStorage);
+        }
+    }
 
     @BeforeEach
     void setUp() {

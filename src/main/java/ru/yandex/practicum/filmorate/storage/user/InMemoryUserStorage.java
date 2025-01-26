@@ -11,7 +11,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
 
-    private final Map<Long, Set<Long>> friendLinks = new HashMap<>();
+    private final Map<Long, Set<Long>> friendLinks = new HashMap<>(); // <userId, Set<userId>>
 
     @Override
     public void upsert(User user) {
