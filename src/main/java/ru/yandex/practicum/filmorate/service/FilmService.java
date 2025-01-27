@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -8,28 +9,23 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 import static ru.yandex.practicum.filmorate.service.Utils.checkContainsFilms;
 import static ru.yandex.practicum.filmorate.service.Utils.checkContainsUsers;
 
+@RequiredArgsConstructor
 @Service
 public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    public FilmService(
-            FilmStorage filmStorage,
-            UserStorage userStorage
-    ) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
-
     public Film addFilm(Film film) {
         Long id = createId();
         film.setId(id);
+        film.setUserLikes(new HashSet<>());
         filmStorage.upsert(film);
         return film;
     }
@@ -61,11 +57,10 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.getFilmLikes()
+        return filmStorage.getFilms()
                 .stream()
-                .sorted(Comparator.comparingInt(f -> -f.likes().size()))
+                .sorted(Comparator.comparingInt(f -> -f.getUserLikes().size()))
                 .limit(count)
-                .map(filmLikes -> filmStorage.getFilm(filmLikes.filmId()))
                 .toList();
     }
 
@@ -85,6 +80,7 @@ public class FilmService {
                 .description(newFilm.getDescription() == null ? originalFilm.getDescription() : newFilm.getDescription())
                 .duration(newFilm.getDuration() == null ? originalFilm.getDuration() : newFilm.getDuration())
                 .releaseDate(newFilm.getReleaseDate() == null ? originalFilm.getReleaseDate() : newFilm.getReleaseDate())
+                .userLikes(originalFilm.getUserLikes())
                 .build();
     }
 }

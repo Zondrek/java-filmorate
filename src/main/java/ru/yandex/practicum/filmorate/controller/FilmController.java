@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,16 +11,13 @@ import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
 import java.util.Collection;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Validated
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
     private final FilmService service;
-
-    public FilmController(FilmService service) {
-        this.service = service;
-    }
 
     @PostMapping
     @Validated(ValidationGroup.OnCreate.class)

@@ -11,12 +11,9 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
 
-    private final Map<Long, Set<Long>> friendLinks = new HashMap<>(); // <userId, Set<userId>>
-
     @Override
     public void upsert(User user) {
         users.put(user.getId(), user);
-        friendLinks.putIfAbsent(user.getId(), new HashSet<>());
     }
 
     @Override
@@ -36,25 +33,19 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(long userId, long friendId) {
-        Set<Long> firstFriends = friendLinks.get(userId);
-        firstFriends.add(friendId);
-
-        Set<Long> secondFriends = friendLinks.get(friendId);
-        secondFriends.add(userId);
+        users.get(userId).getFriendIds().add(friendId);
+        users.get(friendId).getFriendIds().add(userId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
-        Set<Long> firstFriends = friendLinks.get(userId);
-        firstFriends.remove(friendId);
-
-        Set<Long> secondFriends = friendLinks.get(friendId);
-        secondFriends.remove(userId);
+        users.get(userId).getFriendIds().remove(friendId);
+        users.get(friendId).getFriendIds().remove(userId);
     }
 
     @Override
     public Set<User> getFriends(long userId) {
-        return friendLinks.get(userId)
+        return users.get(userId).getFriendIds()
                 .stream()
                 .map(users::get)
                 .collect(Collectors.toSet());

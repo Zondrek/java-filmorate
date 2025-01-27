@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,18 +12,16 @@ import java.util.Set;
 
 import static ru.yandex.practicum.filmorate.service.Utils.checkContainsUsers;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserStorage storage;
 
-    public UserService(UserStorage storage) {
-        this.storage = storage;
-    }
-
     public User createUser(User user) {
         Long id = createId();
         user.setId(id);
+        user.setFriendIds(new HashSet<>());
         updateName(user);
         storage.upsert(user);
         return user;
@@ -59,14 +58,8 @@ public class UserService {
 
     public Set<User> getCommonFriends(long id, long otherId) {
         checkContainsUsers(storage, id, otherId);
-        Set<User> firstFriends = storage.getFriends(id);
-        Set<User> secondFriends = storage.getFriends(otherId);
-        Set<User> result = new HashSet<>();
-        for (User user : firstFriends) {
-            if (secondFriends.contains(user)) {
-                result.add(user);
-            }
-        }
+        Set<User> result = storage.getFriends(id);
+        result.retainAll(storage.getFriends(otherId));
         return result;
     }
 
@@ -92,6 +85,7 @@ public class UserService {
                 .login(newUser.getLogin() == null ? originalUser.getLogin() : newUser.getLogin())
                 .email(newUser.getEmail() == null ? originalUser.getEmail() : newUser.getEmail())
                 .birthday(newUser.getBirthday() == null ? originalUser.getBirthday() : newUser.getBirthday())
+                .friendIds(originalUser.getFriendIds())
                 .build();
     }
 }
