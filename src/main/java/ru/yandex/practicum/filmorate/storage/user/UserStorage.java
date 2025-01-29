@@ -13,8 +13,6 @@ public interface UserStorage {
 
     User getUser(long userId);
 
-    boolean contains(long userId);
-
     void addFriend(long userId, long friendId);
 
     void removeFriend(long userId, long friendId);

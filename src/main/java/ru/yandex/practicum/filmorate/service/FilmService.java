@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -11,9 +11,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-
-import static ru.yandex.practicum.filmorate.service.Utils.checkContainsFilms;
-import static ru.yandex.practicum.filmorate.service.Utils.checkContainsUsers;
 
 @RequiredArgsConstructor
 @Service
@@ -32,9 +29,6 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         Film oldFilm = filmStorage.getFilm(film.getId());
-        if (oldFilm == null) {
-            throw new NotFoundException("Фильма с таким идентификатором не существует");
-        }
         Film result = update(oldFilm, film);
         filmStorage.upsert(result);
         return result;
@@ -45,15 +39,13 @@ public class FilmService {
     }
 
     public void like(Long filmId, Long userId) {
-        checkContainsFilms(filmStorage, filmId);
-        checkContainsUsers(userStorage, userId);
-        filmStorage.addLike(filmId, userId);
+        User user = userStorage.getUser(userId);
+        filmStorage.addLike(filmId, user.getId());
     }
 
     public void removeLike(Long filmId, Long userId) {
-        checkContainsFilms(filmStorage, filmId);
-        checkContainsUsers(userStorage, userId);
-        filmStorage.removeLike(filmId, userId);
+        User user = userStorage.getUser(userId);
+        filmStorage.removeLike(filmId, user.getId());
     }
 
     public List<Film> getPopularFilms(int count) {

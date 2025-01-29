@@ -2,15 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import static ru.yandex.practicum.filmorate.service.Utils.checkContainsUsers;
 
 @RequiredArgsConstructor
 @Service
@@ -29,9 +26,6 @@ public class UserService {
 
     public User updateUser(User newUser) {
         User oldUser = storage.getUser(newUser.getId());
-        if (oldUser == null) {
-            throw new NotFoundException("Пользователя с таким идентификатором не существует");
-        }
         User result = update(oldUser, newUser);
         storage.upsert(result);
         return result;
@@ -42,22 +36,18 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
-        checkContainsUsers(storage, userId, friendId);
         storage.addFriend(userId, friendId);
     }
 
     public void removeFriend(long userId, long friendId) {
-        checkContainsUsers(storage, userId, friendId);
         storage.removeFriend(userId, friendId);
     }
 
     public Set<User> getFriends(long userId) {
-        checkContainsUsers(storage, userId);
         return storage.getFriends(userId);
     }
 
     public Set<User> getCommonFriends(long id, long otherId) {
-        checkContainsUsers(storage, id, otherId);
         Set<User> result = storage.getFriends(id);
         result.retainAll(storage.getFriends(otherId));
         return result;

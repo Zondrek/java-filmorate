@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -23,29 +24,28 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUser(long userId) {
-        return users.get(userId);
-    }
-
-    @Override
-    public boolean contains(long userId) {
-        return users.containsKey(userId);
+        User user = users.get(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователя с таким идентификатором не существует");
+        }
+        return user;
     }
 
     @Override
     public void addFriend(long userId, long friendId) {
-        users.get(userId).getFriendIds().add(friendId);
-        users.get(friendId).getFriendIds().add(userId);
+        getUser(userId).getFriendIds().add(friendId);
+        getUser(friendId).getFriendIds().add(userId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
-        users.get(userId).getFriendIds().remove(friendId);
-        users.get(friendId).getFriendIds().remove(userId);
+        getUser(userId).getFriendIds().remove(friendId);
+        getUser(friendId).getFriendIds().remove(userId);
     }
 
     @Override
     public Set<User> getFriends(long userId) {
-        return users.get(userId).getFriendIds()
+        return getUser(userId).getFriendIds()
                 .stream()
                 .map(users::get)
                 .collect(Collectors.toSet());

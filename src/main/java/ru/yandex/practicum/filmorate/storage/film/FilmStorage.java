@@ -12,8 +12,6 @@ public interface FilmStorage {
 
     Film getFilm(long filmId);
 
-    boolean contains(long filmId);
-
     void addLike(long filmId, long userId);
 
     void removeLike(long filmId, long userId);
