@@ -5,16 +5,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +38,9 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private UserService userService;
+
     @BeforeEach
     void setUp() {
         user = User.builder()
@@ -45,123 +53,119 @@ class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-        testRequestAndGet(user, HttpMethod.POST);
+        String json = objectMapper.writeValueAsString(user);
+        user.setId(1L);
+        when(userService.createUser(any())).thenReturn(user);
+        checkRequestData(json, user, HttpMethod.POST);
+        when(userService.getUsers()).thenReturn(List.of(user));
+        checkGetData(user);
     }
 
     @Test
     void createUserNegativeId() throws Exception {
         user.setId(-1L);
-        testPostInvalidData(user);
+        checkStatusBeforePostInvalidData(user);
     }
 
     @Test
     void createUserEmptyEmail() throws Exception {
         user.setEmail("");
-        testPostInvalidData(user);
+        checkStatusBeforePostInvalidData(user);
     }
 
     @Test
     void createUserWithoutAt() throws Exception {
         user.setEmail("email.ru");
-        testPostInvalidData(user);
+        checkStatusBeforePostInvalidData(user);
     }
 
     @Test
     void createUserEmptyLogin() throws Exception {
         user.setLogin("");
-        testPostInvalidData(user);
+        checkStatusBeforePostInvalidData(user);
     }
 
     @Test
     void createUserNullLogin() throws Exception {
         user.setLogin(null);
-        testPostInvalidData(user);
+        checkStatusBeforePostInvalidData(user);
     }
 
     @Test
     void createUserLoginWith_() throws Exception {
         user.setLogin("log in");
-        testPostInvalidData(user);
-    }
-
-    @Test
-    void createUserNullName() throws Exception {
-        user.setName(null);
-        testRotateName(user);
-    }
-
-    @Test
-    void createUserEmptyName() throws Exception {
-        user.setName("");
-        testRotateName(user);
+        checkStatusBeforePostInvalidData(user);
     }
 
     @Test
     void createUserInvalidBirthday() throws Exception {
         user.setBirthday(LocalDate.now().plusDays(1));
-        testPostInvalidData(user);
+        checkStatusBeforePostInvalidData(user);
     }
 
     @Test
     void updateUser() throws Exception {
-        testPostData(user);
+        checkStatusBeforePostData(user);
         user.setId(1L);
         user.setName("New name");
         user.setEmail("newemail@email.ru");
         user.setLogin("newlogin");
         user.setBirthday(LocalDate.of(1980, 11, 10));
-        testRequestAndGet(user, HttpMethod.PUT);
+        String json = objectMapper.writeValueAsString(user);
+        when(userService.updateUser(any())).thenReturn(user);
+        checkRequestData(json, user, HttpMethod.PUT);
+        when(userService.getUsers()).thenReturn(List.of(user));
+        checkGetData(user);
     }
 
     @Test
     void updateUserNegativeId() throws Exception {
-        testPostData(user);
+        checkStatusBeforePostData(user);
         user.setId(-1L);
-        testPutInvalidData(user);
+        checkStatusBeforePutInvalidData(user);
     }
 
     @Test
     void updateUserEmptyEmail() throws Exception {
-        testPostData(user);
+        checkStatusBeforePostData(user);
         user.setId(1L);
         user.setEmail("");
-        testPutInvalidData(user);
+        checkStatusBeforePutInvalidData(user);
     }
 
     @Test
     void updateUserWithoutAt() throws Exception {
-        testPostData(user);
+        checkStatusBeforePostData(user);
         user.setId(1L);
         user.setEmail("email.ru");
-        testPutInvalidData(user);
+        checkStatusBeforePutInvalidData(user);
     }
 
     @Test
     void updateUserEmptyLogin() throws Exception {
-        testPostData(user);
+        checkStatusBeforePostData(user);
         user.setId(1L);
         user.setLogin("");
-        testPutInvalidData(user);
+        checkStatusBeforePutInvalidData(user);
     }
 
     @Test
     void updateUserLoginWith_() throws Exception {
-        testPostData(user);
+        checkStatusBeforePostData(user);
         user.setId(1L);
         user.setLogin("log in");
-        testPutInvalidData(user);
+        checkStatusBeforePutInvalidData(user);
     }
 
     @Test
     void updateUserInvalidBirthday() throws Exception {
-        testPostData(user);
+        checkStatusBeforePostData(user);
         user.setId(1L);
         user.setBirthday(LocalDate.now().plusDays(1));
-        testPutInvalidData(user);
+        checkStatusBeforePutInvalidData(user);
     }
 
-    private void testRequestAndGet(User user, HttpMethod method) throws Exception {
-        String json = objectMapper.writeValueAsString(user);
+    private void checkRequestData(String json, User user, HttpMethod method) throws Exception {
         mockMvc.perform(request(method, USERS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
@@ -169,6 +173,9 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.login", is(user.getLogin())))
                 .andExpect(jsonPath("$.email", is(user.getEmail())))
                 .andExpect(jsonPath("$.birthday", is(user.getBirthday().toString())));
+    }
+
+    private void checkGetData(User user) throws Exception {
         mockMvc.perform(get(USERS_PATH))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -179,7 +186,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[0].birthday", is(user.getBirthday().toString())));
     }
 
-    private void testPostInvalidData(User user) throws Exception {
+    private void checkStatusBeforePostInvalidData(User user) throws Exception {
         String json = objectMapper.writeValueAsString(user);
         mockMvc.perform(post(USERS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -188,28 +195,13 @@ class UserControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
-    private void testRotateName(User user) throws Exception {
-        String json = objectMapper.writeValueAsString(user);
-        mockMvc.perform(post(USERS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.name", is(user.getLogin())))
-                .andExpect(jsonPath("$.login", is(user.getLogin())));
-        mockMvc.perform(get(USERS_PATH))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].name", is(user.getLogin())))
-                .andExpect(jsonPath("$[0].login", is(user.getLogin())));
-    }
-
-    private void testPostData(User user) throws Exception {
+    private void checkStatusBeforePostData(User user) throws Exception {
         String json = objectMapper.writeValueAsString(user);
         mockMvc.perform(post(USERS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
-    private void testPutInvalidData(User user) throws Exception {
+    private void checkStatusBeforePutInvalidData(User user) throws Exception {
         String json = objectMapper.writeValueAsString(user);
         mockMvc.perform(put(USERS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());

@@ -1,69 +1,53 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-@Slf4j
+@RequiredArgsConstructor
 @Validated
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private final Map<Long, Film> cache = new HashMap<>();
+    private final FilmService service;
 
     @PostMapping
     @Validated(ValidationGroup.OnCreate.class)
     public Film addFilm(@Valid @RequestBody Film film) {
-        log.info("POST /films {}", film);
-        Long id = createId();
-        film.setId(id);
-        cache.put(id, film);
-        return film;
+        return service.addFilm(film);
     }
 
     @PutMapping
     @Validated(ValidationGroup.OnUpdate.class)
     public Film updateFilm(@Valid @RequestBody Film film) {
-        log.info("PUT /films {}", film);
-        Long id = film.getId();
-        if (id == null || !cache.containsKey(id)) {
-            throw new NotFoundException("Фильма с таким идентификатором не существует");
-        }
-        Film result = update(cache.get(id), film);
-        cache.put(result.getId(), result);
-        return result;
+        return service.updateFilm(film);
     }
 
     @GetMapping
     public Collection<Film> getFilms() {
-        log.info("GET /films, films count: {}", cache.size());
-        return cache.values();
+        return service.getFilms();
     }
 
-    private long createId() {
-        long currentMaxId = cache.keySet()
-                .stream()
-                .max(Long::compareTo)
-                .orElse(0L);
-        return ++currentMaxId;
+    @PutMapping("/{id}/like/{userId}")
+    public void like(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+        service.like(filmId, userId);
     }
 
-    private Film update(Film originalFilm, Film newFilm) {
-        return Film.builder()
-                .id(newFilm.getId())
-                .name(newFilm.getName() == null ? originalFilm.getName() : newFilm.getName())
-                .description(newFilm.getDescription() == null ? originalFilm.getDescription() : newFilm.getDescription())
-                .duration(newFilm.getDuration() == null ? originalFilm.getDuration() : newFilm.getDuration())
-                .releaseDate(newFilm.getReleaseDate() == null ? originalFilm.getReleaseDate() : newFilm.getReleaseDate())
-                .build();
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+        service.removeLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        return service.getPopularFilms(count);
     }
 }
