@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface FilmStorage {
 
-    void upsert(Film film);
+    Long upsert(Film film);
 
     List<Film> getFilms();
 

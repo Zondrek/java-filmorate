@@ -1,10 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.dto.FilmDTO;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
 
@@ -21,14 +25,14 @@ public class FilmController {
 
     @PostMapping
     @Validated(ValidationGroup.OnCreate.class)
-    public Film addFilm(@Valid @RequestBody Film film) {
-        return service.addFilm(film);
+    public FilmDTO.Response addFilm(@Valid @RequestBody FilmDTO.Request dto) {
+        return service.addFilm(dto);
     }
 
     @PutMapping
     @Validated(ValidationGroup.OnUpdate.class)
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        return service.updateFilm(film);
+    public FilmDTO.Response updateFilm(@Valid @RequestBody FilmDTO.Request dto) {
+        return service.updateFilm(dto);
     }
 
     @GetMapping
@@ -37,12 +41,12 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void like(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+    public void like(@PathVariable(name = "id") @NotNull Long filmId, @PathVariable @NotNull Long userId) {
         service.like(filmId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+    public void removeLike(@PathVariable(name = "id") @NotNull Long filmId, @PathVariable @NotNull Long userId) {
         service.removeLike(filmId, userId);
     }
 

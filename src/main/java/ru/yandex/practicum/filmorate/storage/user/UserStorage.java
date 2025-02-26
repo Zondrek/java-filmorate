@@ -7,7 +7,7 @@ import java.util.Set;
 
 public interface UserStorage {
 
-    void upsert(User user);
+    Long upsert(User user);
 
     List<User> getUsers();
 

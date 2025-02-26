@@ -2,14 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.mapper.dto.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.dto.FilmDTO;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,19 +20,19 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    public Film addFilm(Film film) {
-        Long id = createId();
+    public FilmDTO.Response addFilm(FilmDTO.Request dto) {
+        Film film = FilmMapper.mapToModel(dto);
+        Long id = filmStorage.upsert(film);
         film.setId(id);
-        film.setUserLikes(new HashSet<>());
-        filmStorage.upsert(film);
-        return film;
+        return FilmMapper.mapToDTO(film);
     }
 
-    public Film updateFilm(Film film) {
-        Film oldFilm = filmStorage.getFilm(film.getId());
-        Film result = update(oldFilm, film);
+    public FilmDTO.Response updateFilm(FilmDTO.Request dto) {
+        Film newFilm = FilmMapper.mapToModel(dto);
+        Film oldFilm = filmStorage.getFilm(newFilm.getId());
+        Film result = update(oldFilm, newFilm);
         filmStorage.upsert(result);
-        return result;
+        return FilmMapper.mapToDTO(result);
     }
 
     public Collection<Film> getFilms() {
@@ -54,15 +55,6 @@ public class FilmService {
                 .sorted(Comparator.comparingInt(f -> -f.getUserLikes().size()))
                 .limit(count)
                 .toList();
-    }
-
-    private long createId() {
-        long currentMaxId = filmStorage.getFilms()
-                .stream()
-                .map(Film::getId)
-                .max(Long::compareTo)
-                .orElse(0L);
-        return ++currentMaxId;
     }
 
     private Film update(Film originalFilm, Film newFilm) {
