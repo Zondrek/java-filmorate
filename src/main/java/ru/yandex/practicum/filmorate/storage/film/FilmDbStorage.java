@@ -121,7 +121,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         String sqlQuery = "SELECT COUNT(*) FROM mpa_table WHERE id = ?";
         int count = jdbc.queryForObject(sqlQuery, Integer.class, mpaId);
         if (count == 0) {
-            throw new NotFoundException("Mpa с ID " + mpaId + " не существует");
+            throw new NotFoundException("MPA с ID " + mpaId + " не существует");
         }
     }
 
