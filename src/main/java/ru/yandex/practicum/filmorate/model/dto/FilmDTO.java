@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model.dto;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;

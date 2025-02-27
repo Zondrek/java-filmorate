@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -35,8 +36,10 @@ public class FilmService {
         return FilmMapper.mapToDTO(result);
     }
 
-    public Collection<Film> getFilms() {
-        return filmStorage.getFilms();
+    public Collection<FilmDTO> getFilms() {
+        return filmStorage.getFilms().stream()
+                .map(FilmMapper::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     public FilmDTO getFilm(Long filmId) {
@@ -54,12 +57,13 @@ public class FilmService {
         filmStorage.removeLike(filmId, user.getId());
     }
 
-    public List<Film> getPopularFilms(int count) {
+    public List<FilmDTO> getPopularFilms(int count) {
         return filmStorage.getFilms()
                 .stream()
                 .sorted(Comparator.comparingInt(f -> -f.getUserLikes().size()))
                 .limit(count)
-                .toList();
+                .map(FilmMapper::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     private Film update(Film originalFilm, Film newFilm) {
