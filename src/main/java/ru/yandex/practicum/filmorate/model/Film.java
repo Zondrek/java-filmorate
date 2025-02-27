@@ -20,9 +20,9 @@ public class Film {
 
     private Integer duration;
 
-    private Long mpaId;
+    private Mpa mpa;
 
-    private Set<Long> genreIds; // genre ids
+    private Set<Genre> genres; // genre ids
 
     private Set<Long> userLikes; // user ids
 }

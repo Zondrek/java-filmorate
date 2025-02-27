@@ -25,13 +25,13 @@ public class FilmController {
 
     @PostMapping
     @Validated(ValidationGroup.OnCreate.class)
-    public FilmDTO.Response addFilm(@Valid @RequestBody FilmDTO.Request dto) {
+    public FilmDTO addFilm(@Valid @RequestBody FilmDTO dto) {
         return service.addFilm(dto);
     }
 
     @PutMapping
     @Validated(ValidationGroup.OnUpdate.class)
-    public FilmDTO.Response updateFilm(@Valid @RequestBody FilmDTO.Request dto) {
+    public FilmDTO updateFilm(@Valid @RequestBody FilmDTO dto) {
         return service.updateFilm(dto);
     }
 
@@ -40,13 +40,18 @@ public class FilmController {
         return service.getFilms();
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void like(@PathVariable(name = "id") @NotNull Long filmId, @PathVariable @NotNull Long userId) {
+    @GetMapping("/{filmId}")
+    public FilmDTO getFilm(@PathVariable @NotNull Long filmId) {
+        return service.getFilm(filmId);
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public void like(@PathVariable @NotNull Long filmId, @PathVariable @NotNull Long userId) {
         service.like(filmId, userId);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable(name = "id") @NotNull Long filmId, @PathVariable @NotNull Long userId) {
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void removeLike(@PathVariable @NotNull Long filmId, @PathVariable @NotNull Long userId) {
         service.removeLike(filmId, userId);
     }
 

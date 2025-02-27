@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS film_table
     mpa_id       INTEGER REFERENCES mpa_table (id)
 );
 
-CREATE TABLE IF NOT EXISTS film_genre
+CREATE TABLE IF NOT EXISTS film_genre_table
 (
     film_id  INTEGER REFERENCES film_table (id) ON DELETE CASCADE,
     genre_id INTEGER REFERENCES genre_table (id) ON DELETE CASCADE,

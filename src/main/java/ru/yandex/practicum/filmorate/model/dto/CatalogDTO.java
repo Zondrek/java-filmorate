@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.model.dto;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Data;
+import lombok.Builder;
 
-@Data
-public class CatalogDTO {
-    @NotNull
-    @Positive
-    Long id;
+@Builder
+public record CatalogDTO(
+        @NotNull @Positive Long id,
+        @Nullable String name
+) {
 }

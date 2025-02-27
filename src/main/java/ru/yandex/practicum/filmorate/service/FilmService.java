@@ -20,14 +20,14 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    public FilmDTO.Response addFilm(FilmDTO.Request dto) {
+    public FilmDTO addFilm(FilmDTO dto) {
         Film film = FilmMapper.mapToModel(dto);
         Long id = filmStorage.upsert(film);
         film.setId(id);
         return FilmMapper.mapToDTO(film);
     }
 
-    public FilmDTO.Response updateFilm(FilmDTO.Request dto) {
+    public FilmDTO updateFilm(FilmDTO dto) {
         Film newFilm = FilmMapper.mapToModel(dto);
         Film oldFilm = filmStorage.getFilm(newFilm.getId());
         Film result = update(oldFilm, newFilm);
@@ -37,6 +37,11 @@ public class FilmService {
 
     public Collection<Film> getFilms() {
         return filmStorage.getFilms();
+    }
+
+    public FilmDTO getFilm(Long filmId) {
+        Film film = filmStorage.getFilm(filmId);
+        return FilmMapper.mapToDTO(film);
     }
 
     public void like(Long filmId, Long userId) {
@@ -65,6 +70,8 @@ public class FilmService {
                 .duration(newFilm.getDuration() == null ? originalFilm.getDuration() : newFilm.getDuration())
                 .releaseDate(newFilm.getReleaseDate() == null ? originalFilm.getReleaseDate() : newFilm.getReleaseDate())
                 .userLikes(originalFilm.getUserLikes())
+                .mpa(originalFilm.getMpa())
+                .genres(originalFilm.getGenres())
                 .build();
     }
 }
