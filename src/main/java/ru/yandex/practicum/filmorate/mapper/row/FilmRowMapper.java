@@ -22,7 +22,6 @@ public class FilmRowMapper implements RowMapper<Film> {
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-        // Обработка лайков
         String likeUserIds = rs.getString("likes");
         Set<Long> likes = new HashSet<>();
         if (likeUserIds != null && !likeUserIds.isEmpty()) {
@@ -31,7 +30,6 @@ public class FilmRowMapper implements RowMapper<Film> {
                     .collect(Collectors.toSet());
         }
 
-        // Обработка жанров
         String str = rs.getString("genres");
         Set<Genre> genres = new HashSet<>();
         if (str != null && !str.isEmpty()) {
@@ -51,7 +49,6 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .name(rs.getString("mpa_name"))
                 .build();
 
-        // Создание объекта Film
         return Film.builder()
                 .id(rs.getLong("film_id"))
                 .name(rs.getString("name"))
