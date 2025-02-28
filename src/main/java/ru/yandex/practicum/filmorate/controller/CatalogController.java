@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +26,7 @@ public class CatalogController {
     }
 
     @GetMapping("/genres/{genreId}")
-    public Genre getGenre(@PathVariable @NotNull Long genreId) {
+    public Genre getGenre(@PathVariable long genreId) {
         return service.getGenre(genreId);
     }
 
@@ -37,7 +36,7 @@ public class CatalogController {
     }
 
     @GetMapping("/mpa/{mpaId}")
-    public Mpa getMpa(@PathVariable @NotNull Long mpaId) {
+    public Mpa getMpa(@PathVariable long mpaId) {
         return service.getMpa(mpaId);
     }
 }

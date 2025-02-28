@@ -24,5 +24,5 @@ public class Film {
 
     private Set<Genre> genres; // genre ids
 
-    private Set<Long> userLikes; // user ids
+    private int likeCount;
 }

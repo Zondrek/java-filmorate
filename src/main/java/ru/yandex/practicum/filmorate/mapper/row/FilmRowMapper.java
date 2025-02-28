@@ -22,14 +22,6 @@ public class FilmRowMapper implements RowMapper<Film> {
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-        String likeUserIds = rs.getString("likes");
-        Set<Long> likes = new HashSet<>();
-        if (likeUserIds != null && !likeUserIds.isEmpty()) {
-            likes = Arrays.stream(likeUserIds.split(COMMON_DELIMITER))
-                    .map(Long::valueOf)
-                    .collect(Collectors.toSet());
-        }
-
         String str = rs.getString("genres");
         Set<Genre> genres = new HashSet<>();
         if (str != null && !str.isEmpty()) {
@@ -56,7 +48,7 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
                 .mpa(mpa)
-                .userLikes(likes)
+                .likeCount(rs.getInt("likes"))
                 .genres(genres)
                 .build();
     }

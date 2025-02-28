@@ -1,4 +1,4 @@
-INSERT INTO genre_table (id, name)
+INSERT INTO genres (id, name)
 VALUES
     (1, 'Комедия'),
     (2, 'Драма'),
@@ -7,7 +7,7 @@ VALUES
     (5, 'Документальный'),
     (6, 'Боевик');
 
-INSERT INTO mpa_table (id, name)
+INSERT INTO mpas (id, name)
 VALUES
     (1, 'G'),
     (2, 'PG'),

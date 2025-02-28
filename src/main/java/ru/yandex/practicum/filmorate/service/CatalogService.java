@@ -18,7 +18,7 @@ public class CatalogService {
         return storage.getGenres();
     }
 
-    public Genre getGenre(Long genreId) {
+    public Genre getGenre(long genreId) {
         return storage.getGenre(genreId);
     }
 
@@ -26,7 +26,7 @@ public class CatalogService {
         return storage.getMpas();
     }
 
-    public Mpa getMpa(Long mpaId) {
+    public Mpa getMpa(long mpaId) {
         return storage.getMpa(mpaId);
     }
 }

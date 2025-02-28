@@ -14,4 +14,8 @@ public interface CatalogStorage {
     List<Mpa> getMpas();
 
     Mpa getMpa(Long mpaId);
+
+    void checkGenresExistOrThrow(List<Long> genreIds);
+
+    void checkMpaExistOrThrow(long mpaId);
 }

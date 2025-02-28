@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class FilmDTO {
 
     private List<CatalogDTO> genres;
 
+    @Valid
     @NotNull
     private CatalogDTO mpa;
 }

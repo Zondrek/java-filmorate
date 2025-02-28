@@ -1,33 +1,33 @@
-CREATE TABLE IF NOT EXISTS genre_table
+CREATE TABLE IF NOT EXISTS genres
 (
     id   INTEGER PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS mpa_table
+CREATE TABLE IF NOT EXISTS mpas
 (
     id   INTEGER PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS film_table
+CREATE TABLE IF NOT EXISTS films
 (
     id           INTEGER AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(255) NOT NULL,
     description  TEXT,
     release_date DATE,
     duration     INTEGER,
-    mpa_id       INTEGER REFERENCES mpa_table (id)
+    mpa_id       INTEGER REFERENCES mpas (id)
 );
 
-CREATE TABLE IF NOT EXISTS film_genre_table
+CREATE TABLE IF NOT EXISTS film_genres
 (
-    film_id  INTEGER REFERENCES film_table (id) ON DELETE CASCADE,
-    genre_id INTEGER REFERENCES genre_table (id) ON DELETE CASCADE,
+    film_id  INTEGER REFERENCES films (id) ON DELETE CASCADE,
+    genre_id INTEGER REFERENCES genres (id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, genre_id)
 );
 
-CREATE TABLE IF NOT EXISTS user_table
+CREATE TABLE IF NOT EXISTS users
 (
     id       INTEGER AUTO_INCREMENT PRIMARY KEY,
     email    VARCHAR(255) NOT NULL,
@@ -36,18 +36,18 @@ CREATE TABLE IF NOT EXISTS user_table
     birthday DATE
 );
 
-CREATE TABLE IF NOT EXISTS friend_link_table
+CREATE TABLE IF NOT EXISTS friend_links
 (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    user_id      INTEGER REFERENCES user_table (id),
-    friend_id      INTEGER REFERENCES user_table (id),
+    user_id      INTEGER REFERENCES users (id),
+    friend_id      INTEGER REFERENCES users (id),
     is_approved BOOL DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS like_table (
+CREATE TABLE IF NOT EXISTS likes (
     film_id INTEGER,
     user_id INTEGER,
     PRIMARY KEY (film_id, user_id),
-    FOREIGN KEY (film_id) REFERENCES film_table(id),
-    FOREIGN KEY (user_id) REFERENCES user_table(id)
+    FOREIGN KEY (film_id) REFERENCES films(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );

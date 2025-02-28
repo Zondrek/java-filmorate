@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.catalog;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -12,16 +13,22 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class CatalogDbStorage implements CatalogStorage {
 
-    private static final String GET_GENRES_QUERY = "SELECT * FROM genre_table";
-    private static final String GET_GENRE_QUERY = "SELECT * FROM genre_table WHERE id = ?";
-    private static final String GET_MPAS_QUERY = "SELECT * FROM mpa_table";
-    private static final String GET_MPA_QUERY = "SELECT * FROM mpa_table WHERE id = ?";
+    private static final String GET_GENRES_QUERY = "SELECT * FROM genres";
+    private static final String GET_GENRE_QUERY = "SELECT * FROM genres WHERE id = ?";
+    private static final String GET_MPAS_QUERY = "SELECT * FROM mpas";
+    private static final String GET_MPA_QUERY = "SELECT * FROM mpas WHERE id = ?";
     private static final String CATALOG_EXCEPTION = "Каталога с таким идентификатором не существует";
 
     private final JdbcTemplate jdbc;
+
+    private final NamedParameterJdbcTemplate namedJdbcTemplate;
+
+    public CatalogDbStorage(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+        this.namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
+    }
 
     @Override
     public List<Genre> getGenres() {
@@ -30,7 +37,7 @@ public class CatalogDbStorage implements CatalogStorage {
 
     @Override
     public Genre getGenre(Long genreId) {
-        checkGenreExistsOrThrow(genreId);
+        checkGenresExistOrThrow(List.of(genreId));
         return jdbc.queryForObject(GET_GENRE_QUERY, this::mapGenre, genreId);
     }
 
@@ -41,7 +48,7 @@ public class CatalogDbStorage implements CatalogStorage {
 
     @Override
     public Mpa getMpa(Long mpaId) {
-        checkMpaExistsOrThrow(mpaId);
+        checkMpaExistOrThrow(mpaId);
         return jdbc.queryForObject(GET_MPA_QUERY, this::mapMpa, mpaId);
     }
 
@@ -59,16 +66,23 @@ public class CatalogDbStorage implements CatalogStorage {
                 .build();
     }
 
-    public void checkGenreExistsOrThrow(long genreId) {
-        String sqlQuery = "SELECT COUNT(*) FROM genre_table WHERE id = ?";
-        int count = jdbc.queryForObject(sqlQuery, Integer.class, genreId);
-        if (count == 0) {
+    @Override
+    public void checkGenresExistOrThrow(List<Long> genreIds) {
+        if (genreIds.isEmpty()) {
+            return;
+        }
+        String sqlQuery = "SELECT COUNT(*) FROM genres WHERE id IN (:genreIds)";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("genreIds", genreIds);
+        Integer count = namedJdbcTemplate.queryForObject(sqlQuery, parameters, Integer.class);
+        if (count == null || count != genreIds.size()) {
             throw new NotFoundException(CATALOG_EXCEPTION);
         }
     }
 
-    public void checkMpaExistsOrThrow(long mpaId) {
-        String sqlQuery = "SELECT COUNT(*) FROM mpa_table WHERE id = ?";
+    @Override
+    public void checkMpaExistOrThrow(long mpaId) {
+        String sqlQuery = "SELECT COUNT(*) FROM mpas WHERE id = ?";
         int count = jdbc.queryForObject(sqlQuery, Integer.class, mpaId);
         if (count == 0) {
             throw new NotFoundException(CATALOG_EXCEPTION);

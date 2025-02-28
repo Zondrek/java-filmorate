@@ -20,7 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -98,10 +99,10 @@ class FilmDbStorageTest {
 
         filmStorage.addLike(filmId, userId);
         Film likedFilm = filmStorage.getFilm(filmId);
-        assertTrue(likedFilm.getUserLikes().contains(userId));
+        assertEquals(1, likedFilm.getLikeCount());
 
         filmStorage.removeLike(filmId, userId);
         likedFilm = filmStorage.getFilm(filmId);
-        assertFalse(likedFilm.getUserLikes().contains(userId));
+        assertEquals(0, likedFilm.getLikeCount());
     }
 }

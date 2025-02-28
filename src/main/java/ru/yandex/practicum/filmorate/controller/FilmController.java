@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,17 +37,17 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public FilmDTO getFilm(@PathVariable @NotNull Long filmId) {
+    public FilmDTO getFilm(@PathVariable long filmId) {
         return service.getFilm(filmId);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public void like(@PathVariable @NotNull Long filmId, @PathVariable @NotNull Long userId) {
+    public void like(@PathVariable long filmId, @PathVariable long userId) {
         service.like(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public void removeLike(@PathVariable @NotNull Long filmId, @PathVariable @NotNull Long userId) {
+    public void removeLike(@PathVariable long filmId, @PathVariable long userId) {
         service.removeLike(filmId, userId);
     }
 

@@ -15,17 +15,17 @@ import java.util.Set;
 @Component
 public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
-    private static final String CREATE_USER_QUERY = "INSERT INTO user_table (email, login, name, birthday) " +
+    private static final String CREATE_USER_QUERY = "INSERT INTO users (email, login, name, birthday) " +
             "VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_USER_QUERY = "UPDATE user_table " +
+    private static final String UPDATE_USER_QUERY = "UPDATE users " +
             "SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
-    private static final String GET_USERS_QUERY = "SELECT * FROM user_table";
-    private static final String GET_USER_QUERY = "SELECT * FROM user_table WHERE id = ?";
-    private static final String ADD_FRIEND_QUERY = "INSERT INTO friend_link_table (user_id, friend_id) VALUES (?, ?)";
-    private static final String REMOVE_FRIEND_QUERY = "DELETE FROM friend_link_table " +
+    private static final String GET_USERS_QUERY = "SELECT * FROM users";
+    private static final String GET_USER_QUERY = "SELECT * FROM users WHERE id = ?";
+    private static final String ADD_FRIEND_QUERY = "INSERT INTO friend_links (user_id, friend_id) VALUES (?, ?)";
+    private static final String REMOVE_FRIEND_QUERY = "DELETE FROM friend_links " +
             "WHERE user_id = ? AND friend_id = ?";
-    private static final String GET_FRIENDS_QUERY = "SELECT u.* FROM user_table u " +
-            "JOIN friend_link_table f ON u.id = f.friend_id WHERE f.user_id = ?";
+    private static final String GET_FRIENDS_QUERY = "SELECT u.* FROM users u " +
+            "JOIN friend_links f ON u.id = f.friend_id WHERE f.user_id = ?";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -83,7 +83,7 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
     }
 
     public void checkUserExistsOrThrow(long userId) {
-        String sqlQuery = "SELECT COUNT(*) FROM user_table WHERE id = ?";
+        String sqlQuery = "SELECT COUNT(*) FROM users WHERE id = ?";
         int count = jdbc.queryForObject(sqlQuery, Integer.class, userId);
         if (count == 0) {
             throw new NotFoundException("Пользователя с таким идентификатором не существует");

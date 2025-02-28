@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,21 +21,16 @@ public class BaseDbStorage<T> {
     protected Integer insert(String query, Object... params) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             for (int idx = 0; idx < params.length; idx++) {
                 ps.setObject(idx + 1, params[idx]);
             }
             return ps;
         }, keyHolder);
-
         Integer id = keyHolder.getKeyAs(Integer.class);
-
-        // Возвращаем id нового пользователя
         if (id == null) {
             throw new InternalServerException("Не удалось сохранить данные");
         }
-
         return id;
     }
 
@@ -51,7 +47,11 @@ public class BaseDbStorage<T> {
     }
 
     protected T findOne(String query, Object... params) {
-        return jdbc.queryForObject(query, mapper, params);
+        try {
+            return jdbc.queryForObject(query, mapper, params);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     protected List<T> findMany(String query, Object... params) {
