@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.dto.FilmDTO;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validation.group.ValidationGroup;
 
@@ -21,33 +21,38 @@ public class FilmController {
 
     @PostMapping
     @Validated(ValidationGroup.OnCreate.class)
-    public Film addFilm(@Valid @RequestBody Film film) {
-        return service.addFilm(film);
+    public FilmDTO addFilm(@Valid @RequestBody FilmDTO dto) {
+        return service.addFilm(dto);
     }
 
     @PutMapping
     @Validated(ValidationGroup.OnUpdate.class)
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        return service.updateFilm(film);
+    public FilmDTO updateFilm(@Valid @RequestBody FilmDTO dto) {
+        return service.updateFilm(dto);
     }
 
     @GetMapping
-    public Collection<Film> getFilms() {
+    public Collection<FilmDTO> getFilms() {
         return service.getFilms();
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void like(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+    @GetMapping("/{filmId}")
+    public FilmDTO getFilm(@PathVariable long filmId) {
+        return service.getFilm(filmId);
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public void like(@PathVariable long filmId, @PathVariable long userId) {
         service.like(filmId, userId);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void removeLike(@PathVariable long filmId, @PathVariable long userId) {
         service.removeLike(filmId, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+    public List<FilmDTO> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return service.getPopularFilms(count);
     }
 }

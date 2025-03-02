@@ -7,14 +7,20 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
-    public void upsert(User user) {
+    public Long upsert(User user) {
+        if (user.getId() == null) {
+            user.setId(createId());
+            user.setFriendIds(new HashSet<>());
+        }
         users.put(user.getId(), user);
+        return user.getId();
     }
 
     @Override
@@ -49,5 +55,14 @@ public class InMemoryUserStorage implements UserStorage {
                 .stream()
                 .map(users::get)
                 .collect(Collectors.toSet());
+    }
+
+    private long createId() {
+        long currentMaxId = getUsers()
+                .stream()
+                .map(User::getId)
+                .max(Long::compareTo)
+                .orElse(0L);
+        return ++currentMaxId;
     }
 }

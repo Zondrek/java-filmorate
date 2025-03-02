@@ -15,8 +15,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public void upsert(Film film) {
+    public Long upsert(Film film) {
+        if (film.getId() == null) {
+            Long id = createId();
+            film.setId(id);
+        }
         films.put(film.getId(), film);
+        return film.getId();
     }
 
     @Override
@@ -35,11 +40,24 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addLike(long filmId, long userId) {
-        getFilm(filmId).getUserLikes().add(userId);
+        Film film = films.get(filmId);
+        int likeCount = film.getLikeCount();
+        film.setLikeCount(likeCount + 1);
     }
 
     @Override
     public void removeLike(long filmId, long userId) {
-        getFilm(filmId).getUserLikes().remove(userId);
+        Film film = films.get(filmId);
+        int likeCount = film.getLikeCount();
+        film.setLikeCount(likeCount - 1);
+    }
+
+    private long createId() {
+        long currentMaxId = getFilms()
+                .stream()
+                .map(Film::getId)
+                .max(Long::compareTo)
+                .orElse(0L);
+        return ++currentMaxId;
     }
 }

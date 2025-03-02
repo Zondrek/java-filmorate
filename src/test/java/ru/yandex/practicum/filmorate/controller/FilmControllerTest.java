@@ -10,7 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.dto.CatalogDTO;
+import ru.yandex.practicum.filmorate.model.dto.FilmDTO;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
@@ -30,7 +31,7 @@ class FilmControllerTest {
 
     private static final String FILMS_PATH = "/films";
 
-    private Film film;
+    private FilmDTO film;
 
     @Autowired
     private MockMvc mockMvc;
@@ -43,11 +44,12 @@ class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
-        film = Film.builder()
+        film = FilmDTO.builder()
                 .name("Film name")
                 .description("Film description")
                 .releaseDate(LocalDate.of(2020, 1, 1))
                 .duration(100)
+                .mpa(new CatalogDTO(1L, "test"))
                 .build();
     }
 
@@ -137,7 +139,7 @@ class FilmControllerTest {
         checkStatusBeforePutInvalidData(film);
     }
 
-    private void checkRequestData(String json, Film film, HttpMethod method) throws Exception {
+    private void checkRequestData(String json, FilmDTO film, HttpMethod method) throws Exception {
         mockMvc.perform(request(method, FILMS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
@@ -147,7 +149,7 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$.duration", is(film.getDuration())));
     }
 
-    private void checkGetData(Film film) throws Exception {
+    private void checkGetData(FilmDTO film) throws Exception {
         mockMvc.perform(get(FILMS_PATH))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -158,7 +160,7 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$[0].duration", is(film.getDuration())));
     }
 
-    private void checkStatusBeforePostInvalidData(Film film) throws Exception {
+    private void checkStatusBeforePostInvalidData(FilmDTO film) throws Exception {
         String json = objectMapper.writeValueAsString(film);
         mockMvc.perform(post(FILMS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -167,13 +169,13 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
-    private void checkStatusBeforePostData(Film film) throws Exception {
+    private void checkStatusBeforePostData(FilmDTO film) throws Exception {
         String json = objectMapper.writeValueAsString(film);
         mockMvc.perform(post(FILMS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
-    private void checkStatusBeforePutInvalidData(Film film) throws Exception {
+    private void checkStatusBeforePutInvalidData(FilmDTO film) throws Exception {
         String json = objectMapper.writeValueAsString(film);
         mockMvc.perform(put(FILMS_PATH).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.yandex.practicum.filmorate.error.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
-import ru.yandex.practicum.filmorate.model.ValidationErrorResponse;
-import ru.yandex.practicum.filmorate.model.Violation;
+import ru.yandex.practicum.filmorate.model.dto.ErrorResponse;
+import ru.yandex.practicum.filmorate.model.dto.ValidationErrorResponse;
+import ru.yandex.practicum.filmorate.model.dto.Violation;
 
 import java.util.List;
 import java.util.stream.Collectors;

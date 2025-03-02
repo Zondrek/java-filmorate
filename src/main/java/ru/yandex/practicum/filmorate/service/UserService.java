@@ -16,11 +16,9 @@ public class UserService {
     private final UserStorage storage;
 
     public User createUser(User user) {
-        Long id = createId();
-        user.setId(id);
-        user.setFriendIds(new HashSet<>());
         updateName(user);
-        storage.upsert(user);
+        Long id = storage.upsert(user);
+        user.setId(id);
         return user;
     }
 
@@ -48,18 +46,9 @@ public class UserService {
     }
 
     public Set<User> getCommonFriends(long id, long otherId) {
-        Set<User> result = storage.getFriends(id);
+        Set<User> result = new HashSet<>(storage.getFriends(id));
         result.retainAll(storage.getFriends(otherId));
         return result;
-    }
-
-    private long createId() {
-        long currentMaxId = storage.getUsers()
-                .stream()
-                .map(User::getId)
-                .max(Long::compareTo)
-                .orElse(0L);
-        return ++currentMaxId;
     }
 
     private void updateName(User user) {
